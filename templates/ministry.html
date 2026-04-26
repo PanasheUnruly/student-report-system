@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ministry Dashboard | Student Report System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root{--green:#00c896;--green-dim:rgba(0,200,150,0.1);--bg:#070d1a;--surface:#0d1829;--surface2:#152035;--border:#1e3050;--text:#e8f4ff;--muted:#5a7a9a;--red:#ff4d6d;--blue:#3a86ff;--yellow:#f5c400;--font:'Sora',sans-serif;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,200,150,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,150,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
+    header{background:#0a1525;border-bottom:1px solid var(--border);padding:0 2rem;position:relative;z-index:10;}
+    .hdr{max-width:1300px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:1rem 0;}
+    .hdr-left{display:flex;align-items:center;gap:0.8rem;}
+    .hdr-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--green),#006644);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+    .hdr-title{font-size:1rem;font-weight:800;}
+    .hdr-sub{font-size:0.68rem;color:var(--muted);}
+    .hdr-right{display:flex;align-items:center;gap:1rem;}
+    .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;display:inline-block;margin-right:0.4rem;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    .logout{background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--muted);font-family:var(--font);font-size:0.72rem;padding:0.3rem 0.7rem;cursor:pointer;}
+    main{max-width:1300px;margin:0 auto;padding:2rem;position:relative;z-index:1;}
+    .section-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--muted);margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;}
+    .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.3rem;position:relative;overflow:hidden;}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),transparent);}
+    .stat-icon{position:absolute;top:1rem;right:1rem;font-size:1.4rem;opacity:0.25;}
+    .stat-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;}
+    .stat-val{font-size:1.9rem;font-weight:800;line-height:1;}
+    .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem;}
+    .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;}
+    .chart-title{font-size:0.85rem;font-weight:700;margin-bottom:1.2rem;}
+    .chart-wrap{height:220px;position:relative;}
+    .full-chart{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.5rem;}
+    @media(max-width:800px){.stats-grid{grid-template-columns:repeat(2,1fr)}.charts-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-icon">🏛️</div>
+      <div>
+        <div class="hdr-title">Ministry Dashboard</div>
+        <div class="hdr-sub">Primary &amp; Secondary Education Analytics · Zimbabwe</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span style="font-size:0.72rem;color:var(--muted)"><span class="live-dot"></span>Live Data</span>
+      <button class="logout" onclick="window.location='/logout'">Sign Out</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="section-label">System Overview</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">🏫</div><div class="stat-label">Total Schools</div><div class="stat-val" id="s-schools">—</div></div>
+    <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-label">Total Students</div><div class="stat-val" id="s-students">—</div></div>
+    <div class="stat-card"><div class="stat-icon">👨‍🏫</div><div class="stat-label">Total Teachers</div><div class="stat-val" id="s-teachers">—</div></div>
+    <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-label">National Average</div><div class="stat-val" id="s-avg" style="color:var(--green)">—</div></div>
+  </div>
+
+  <div class="section-label">Performance Analytics</div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">📈 School Performance (Average Mark)</div>
+      <div class="chart-wrap"><canvas id="schoolChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🎯 Grade Distribution (All Schools)</div>
+      <div class="chart-wrap"><canvas id="gradeChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="full-chart">
+    <div class="chart-title">📚 Subject Performance Comparison</div>
+    <div class="chart-wrap" style="height:260px"><canvas id="subjectChart"></canvas></div>
+  </div>
+</main>
+<script>
+  const FONT = "'Sora', sans-serif";
+  const GRID_COLOR = "#1e3050";
+  const MUTED = "#5a7a9a";
+
+  async function loadOverview() {
+    const res  = await fetch('/api/ministry/overview');
+    const data = await res.json();
+    document.getElementById('s-schools').textContent  = data.total_schools;
+    document.getElementById('s-students').textContent = data.total_students;
+    document.getElementById('s-teachers').textContent = data.total_teachers;
+    document.getElementById('s-avg').textContent      = data.avg_mark + '%';
+  }
+
+  async function loadSchoolChart() {
+    const res  = await fetch('/api/ministry/school-performance');
+    const data = await res.json();
+    new Chart(document.getElementById('schoolChart'), {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.school.replace(' School','').replace(' High','')),
+        datasets: [{ label: 'Average Mark', data: data.map(d => d.average),
+          backgroundColor: ['#00c896','#3a86ff','#f5c400','#ff8c00'],
+          borderRadius: 8, borderSkipped: false }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: MUTED, font: { family: FONT, size: 10 } }, grid: { color: GRID_COLOR } },
+          y: { min: 0, max: 100, ticks: { color: MUTED, font: { family: FONT, size: 10 } }, grid: { color: GRID_COLOR } }
+        }
+      }
+    });
+  }
+
+  async function loadGradeChart() {
+    const res  = await fetch('/api/ministry/grade-distribution');
+    const data = await res.json();
+    new Chart(document.getElementById('gradeChart'), {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(data),
+        datasets: [{ data: Object.values(data),
+          backgroundColor: ['#00c896','#3a86ff','#f5c400','#ff8c00','#ff4d6d'],
+          borderColor: '#0d1829', borderWidth: 3 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { color: MUTED, font: { family: FONT, size: 10 }, padding: 12 } } }
+      }
+    });
+  }
+
+  async function loadSubjectChart() {
+    const res  = await fetch('/api/ministry/subject-performance');
+    const data = await res.json();
+    new Chart(document.getElementById('subjectChart'), {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.subject),
+        datasets: [{ label: 'Average Mark', data: data.map(d => d.average),
+          backgroundColor: data.map(d => d.average >= 70 ? '#00c896' : d.average >= 50 ? '#f5c400' : '#ff4d6d'),
+          borderRadius: 6, borderSkipped: false }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { min: 0, max: 100, ticks: { color: MUTED, font: { family: FONT, size: 10 } }, grid: { color: GRID_COLOR } },
+          y: { ticks: { color: MUTED, font: { family: FONT, size: 10 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  loadOverview();
+  loadSchoolChart();
+  loadGradeChart();
+  loadSubjectChart();
+</script>
+</body>
+</html>

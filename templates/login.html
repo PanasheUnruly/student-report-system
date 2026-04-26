@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | Student Report System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green: #00c896; --green-dim: rgba(0,200,150,0.1);
+      --bg: #070d1a; --surface: #0d1829; --border: #1e3050;
+      --text: #e8f4ff; --muted: #5a7a9a; --red: #ff4d6d;
+      --font: 'Sora', sans-serif;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:var(--font); min-height:100vh; display:flex; align-items:center; justify-content:center; }
+    body::before { content:''; position:fixed; inset:0; background-image: linear-gradient(rgba(0,200,150,0.03) 1px,transparent 1px), linear-gradient(90deg,rgba(0,200,150,0.03) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; }
+    .wrap { position:relative; z-index:10; width:100%; max-width:440px; padding:1.5rem; animation:fadeUp 0.5s ease; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .badge { text-align:center; margin-bottom:1.8rem; }
+    .badge-icon { width:60px; height:60px; background:linear-gradient(135deg,#00c896,#006644); border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin:0 auto 0.8rem; box-shadow:0 0 28px rgba(0,200,150,0.25); }
+    .badge h1 { font-size:1.1rem; font-weight:800; letter-spacing:-0.02em; }
+    .badge p { font-size:0.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.12em; margin-top:0.2rem; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:2rem; position:relative; overflow:hidden; }
+    .card::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; background:linear-gradient(90deg,transparent,var(--green),transparent); }
+    .roles { display:grid; grid-template-columns:repeat(3,1fr); gap:0.6rem; margin-bottom:1.5rem; }
+    .role-btn { background:#070d1a; border:1px solid var(--border); border-radius:10px; padding:0.8rem 0.4rem; text-align:center; cursor:pointer; transition:all 0.2s; }
+    .role-btn:hover,.role-btn.active { border-color:var(--green); background:var(--green-dim); }
+    .role-btn .icon { font-size:1.3rem; display:block; margin-bottom:0.3rem; }
+    .role-btn .lbl { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); }
+    .role-btn.active .lbl { color:var(--green); }
+    .field { margin-bottom:1rem; }
+    .field label { display:block; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:0.4rem; }
+    .field input { width:100%; background:#070d1a; border:1px solid var(--border); border-radius:9px; padding:0.8rem 1rem; color:var(--text); font-family:var(--font); font-size:0.85rem; outline:none; transition:border-color 0.2s; }
+    .field input:focus { border-color:var(--green); }
+    .field input::placeholder { color:var(--muted); }
+    .hint-box { background:var(--green-dim); border:1px solid rgba(0,200,150,0.2); border-radius:8px; padding:0.6rem 0.8rem; font-size:0.68rem; color:var(--muted); margin-bottom:1rem; font-family:'JetBrains Mono',monospace; line-height:1.7; }
+    .hint-box strong { color:var(--green); }
+    .error { background:rgba(255,77,109,0.1); border:1px solid rgba(255,77,109,0.3); border-radius:8px; padding:0.6rem 1rem; font-size:0.75rem; color:var(--red); margin-bottom:1rem; }
+    .btn { width:100%; background:linear-gradient(135deg,#00c896,#00a07a); border:none; border-radius:9px; padding:0.9rem; color:#000; font-family:var(--font); font-size:0.85rem; font-weight:700; cursor:pointer; transition:all 0.2s; }
+    .btn:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(0,200,150,0.25); }
+    .footer { text-align:center; margin-top:1.2rem; font-size:0.65rem; color:var(--muted); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">
+    <div class="badge-icon">📚</div>
+    <h1>Student Report System</h1>
+    <p>Ministry of Primary &amp; Secondary Education · Zimbabwe</p>
+  </div>
+  <div class="card">
+    <form method="POST" action="/login">
+      <!-- Role selector -->
+      <div class="roles">
+        <div class="role-btn {% if role == 'teacher' %}active{% endif %}" onclick="setRole('teacher',this)">
+          <span class="icon">👨‍🏫</span><span class="lbl">Teacher</span>
+          <input type="radio" name="role" value="teacher" {% if role == 'teacher' %}checked{% endif %} style="display:none"/>
+        </div>
+        <div class="role-btn {% if role == 'parent' %}active{% endif %}" onclick="setRole('parent',this)">
+          <span class="icon">👨‍👩‍👧</span><span class="lbl">Parent</span>
+          <input type="radio" name="role" value="parent" {% if role == 'parent' %}checked{% endif %} style="display:none"/>
+        </div>
+        <div class="role-btn {% if role == 'ministry' %}active{% endif %}" onclick="setRole('ministry',this)">
+          <span class="icon">🏛️</span><span class="lbl">Ministry</span>
+          <input type="radio" name="role" value="ministry" {% if role == 'ministry' %}checked{% endif %} style="display:none"/>
+        </div>
+      </div>
+
+      <!-- Demo hints -->
+      <div class="hint-box" id="hint-teacher" style="display:{% if role == 'teacher' or not role %}block{% else %}none{% endif %}">
+        Teacher ID: <strong>TCH001</strong> · Password: <strong>teacher123</strong>
+      </div>
+      <div class="hint-box" id="hint-parent" style="display:{% if role == 'parent' %}block{% else %}none{% endif %}">
+        Parent Code: <strong>PAR-001</strong> (no password needed)
+      </div>
+      <div class="hint-box" id="hint-ministry" style="display:{% if role == 'ministry' %}block{% else %}none{% endif %}">
+        Username: <strong>admin</strong> · Password: <strong>ministry2026</strong>
+      </div>
+
+      {% if error %}<div class="error">❌ {{ error }}</div>{% endif %}
+
+      <div class="field" id="field-username">
+        <label id="lbl-username">Teacher ID</label>
+        <input type="text" name="username" placeholder="Enter your ID or code" required/>
+      </div>
+      <div class="field" id="field-password">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter your password"/>
+      </div>
+
+      <button type="submit" class="btn">Sign In →</button>
+    </form>
+  </div>
+  <div class="footer">Secure Portal · Zimbabwe MPSE © 2026</div>
+</div>
+<script>
+  const roles = document.querySelectorAll('.role-btn');
+  function setRole(role, el) {
+    roles.forEach(r => r.classList.remove('active'));
+    el.classList.add('active');
+    el.querySelector('input').checked = true;
+    document.getElementById('hint-teacher').style.display  = role === 'teacher'  ? 'block' : 'none';
+    document.getElementById('hint-parent').style.display   = role === 'parent'   ? 'block' : 'none';
+    document.getElementById('hint-ministry').style.display = role === 'ministry' ? 'block' : 'none';
+    document.getElementById('lbl-username').textContent    = role === 'parent' ? 'Parent Code' : role === 'teacher' ? 'Teacher ID' : 'Username';
+    document.getElementById('field-password').style.display = role === 'parent' ? 'none' : 'block';
+  }
+  // Default active
+  if (!document.querySelector('.role-btn.active')) {
+    document.querySelector('.role-btn').classList.add('active');
+  }
+</script>
+</body>
+</html>
