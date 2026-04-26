@@ -1,0 +1,1 @@
+some students often dont get their reports to the parents. This system covers the gap as it connects the marks inserted straight from the teachers to the parents and also giving analytics to the ministry
