@@ -80,11 +80,12 @@ def login():
     if role == "teacher":
         teacher = teachers_col.find_one({"teacher_id": username, "password": password})
         if teacher:
+            school = schools_col.find_one({"school_id": teacher["school_id"]})
             session["role"]        = "teacher"
             session["teacher_id"]  = teacher["teacher_id"]
             session["name"]        = teacher["name"]
             session["school_id"]   = teacher["school_id"]
-            session["school_name"] = teacher["school_name"]
+            session["school_name"] = teacher.get("school_name", school["name"] if school else "Unknown School")
             session["subject"]     = teacher["subject"]
             session["class"]       = teacher["class"]
             return redirect("/teacher")
@@ -96,7 +97,7 @@ def login():
             session["role"]        = "parent"
             session["parent_code"] = username
             session["student_id"]  = parent["student_id"]
-            session["name"]        = parent["guardian_name"]
+            session["name"]        = parent.get("guardian_name", parent.get("name", "Parent"))
             return redirect("/parent")
         return render_template("login.html", error="Invalid parent code. Please check with your child's teacher.", role=role)
 
