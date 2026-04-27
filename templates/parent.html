@@ -57,7 +57,7 @@
         <div class="hdr-sub">{{ session.name }}</div>
       </div>
     </div>
-    <button class="logout" onclick="window.location='/logout'">Sign Out</button>
+    <button class="logout" onclick="confirmLogout()">Sign Out</button>
   </div>
 </header>
 <main>
@@ -151,5 +151,19 @@
     window.location.href = `/api/download-report?term=${encodeURIComponent(term)}&year=${year}`;
   }
 </script>
+
+<!-- Logout Modal -->
+<div class="modal-overlay" id="logout-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;">
+  <div style="background:#0d1829;border:1px solid #1e3050;border-radius:18px;padding:2rem;max-width:340px;width:90%;text-align:center;">
+    <div style="font-size:2.5rem;margin-bottom:0.8rem;">👋</div>
+    <h3 style="font-size:1rem;margin-bottom:0.5rem;">Sign Out?</h3>
+    <p style="font-size:0.8rem;color:#5a7a9a;margin-bottom:1.5rem;">Are you sure you want to sign out of the Parent Portal?</p>
+    <div style="display:flex;gap:0.8rem;justify-content:center;">
+      <button onclick="document.getElementById('logout-modal').style.display='none'" style="background:transparent;border:1px solid #1e3050;border-radius:8px;color:#5a7a9a;font-family:'Sora',sans-serif;font-size:0.82rem;padding:0.6rem 1.4rem;cursor:pointer;">Cancel</button>
+      <button onclick="window.location='/logout'" style="background:#ff4d6d;border:none;border-radius:8px;color:#fff;font-family:'Sora',sans-serif;font-size:0.82rem;font-weight:700;padding:0.6rem 1.4rem;cursor:pointer;">Yes, Sign Out</button>
+    </div>
+  </div>
+</div>
+<script>function confirmLogout(){document.getElementById('logout-modal').style.display='flex';}</script>
 </body>
 </html>

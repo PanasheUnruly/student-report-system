@@ -50,43 +50,44 @@
     <p>Ministry of Primary &amp; Secondary Education · Zimbabwe</p>
   </div>
   <div class="card">
-    <form method="POST" action="/login">
+    <!-- Hidden role input that gets submitted -->
+    <input type="hidden" id="role-input" name="role" value="teacher"/>
+    <form method="POST" action="/login" id="login-form">
+      <input type="hidden" id="role-hidden" name="role" value="teacher"/>
+
       <!-- Role selector -->
       <div class="roles">
-        <div class="role-btn {% if role == 'teacher' %}active{% endif %}" onclick="setRole('teacher',this)">
+        <div class="role-btn active" id="btn-teacher" onclick="setRole('teacher')">
           <span class="icon">👨‍🏫</span><span class="lbl">Teacher</span>
-          <input type="radio" name="role" value="teacher" {% if role == 'teacher' %}checked{% endif %} style="display:none"/>
         </div>
-        <div class="role-btn {% if role == 'parent' %}active{% endif %}" onclick="setRole('parent',this)">
+        <div class="role-btn" id="btn-parent" onclick="setRole('parent')">
           <span class="icon">👨‍👩‍👧</span><span class="lbl">Parent</span>
-          <input type="radio" name="role" value="parent" {% if role == 'parent' %}checked{% endif %} style="display:none"/>
         </div>
-        <div class="role-btn {% if role == 'ministry' %}active{% endif %}" onclick="setRole('ministry',this)">
+        <div class="role-btn" id="btn-ministry" onclick="setRole('ministry')">
           <span class="icon">🏛️</span><span class="lbl">Ministry</span>
-          <input type="radio" name="role" value="ministry" {% if role == 'ministry' %}checked{% endif %} style="display:none"/>
         </div>
       </div>
 
       <!-- Demo hints -->
-      <div class="hint-box" id="hint-teacher" style="display:{% if role == 'teacher' or not role %}block{% else %}none{% endif %}">
+      <div class="hint-box" id="hint-teacher">
         Teacher ID: <strong>TCH001</strong> · Password: <strong>teacher123</strong>
       </div>
-      <div class="hint-box" id="hint-parent" style="display:{% if role == 'parent' %}block{% else %}none{% endif %}">
+      <div class="hint-box" id="hint-parent" style="display:none">
         Parent Code: <strong>PAR-001</strong> (no password needed)
       </div>
-      <div class="hint-box" id="hint-ministry" style="display:{% if role == 'ministry' %}block{% else %}none{% endif %}">
+      <div class="hint-box" id="hint-ministry" style="display:none">
         Username: <strong>admin</strong> · Password: <strong>ministry2026</strong>
       </div>
 
       {% if error %}<div class="error">❌ {{ error }}</div>{% endif %}
 
-      <div class="field" id="field-username">
+      <div class="field">
         <label id="lbl-username">Teacher ID</label>
-        <input type="text" name="username" placeholder="Enter your ID or code" required/>
+        <input type="text" id="username" name="username" placeholder="Enter your ID or code" autocomplete="off"/>
       </div>
       <div class="field" id="field-password">
         <label>Password</label>
-        <input type="password" name="password" placeholder="Enter your password"/>
+        <input type="password" name="password" placeholder="Enter your password" autocomplete="off"/>
       </div>
 
       <button type="submit" class="btn">Sign In →</button>
@@ -95,20 +96,18 @@
   <div class="footer">Secure Portal · Zimbabwe MPSE © 2026</div>
 </div>
 <script>
-  const roles = document.querySelectorAll('.role-btn');
-  function setRole(role, el) {
-    roles.forEach(r => r.classList.remove('active'));
-    el.classList.add('active');
-    el.querySelector('input').checked = true;
-    document.getElementById('hint-teacher').style.display  = role === 'teacher'  ? 'block' : 'none';
-    document.getElementById('hint-parent').style.display   = role === 'parent'   ? 'block' : 'none';
-    document.getElementById('hint-ministry').style.display = role === 'ministry' ? 'block' : 'none';
-    document.getElementById('lbl-username').textContent    = role === 'parent' ? 'Parent Code' : role === 'teacher' ? 'Teacher ID' : 'Username';
+  function setRole(role) {
+    // Update hidden input
+    document.getElementById('role-hidden').value = role;
+    // Update button styles
+    ['teacher','parent','ministry'].forEach(r => {
+      document.getElementById('btn-' + r).classList.toggle('active', r === role);
+      document.getElementById('hint-' + r).style.display = r === role ? 'block' : 'none';
+    });
+    // Update label and password field
+    document.getElementById('lbl-username').textContent = role === 'parent' ? 'Parent Code' : role === 'teacher' ? 'Teacher ID' : 'Username';
     document.getElementById('field-password').style.display = role === 'parent' ? 'none' : 'block';
-  }
-  // Default active
-  if (!document.querySelector('.role-btn.active')) {
-    document.querySelector('.role-btn').classList.add('active');
+    document.getElementById('username').value = '';
   }
 </script>
 </body>
